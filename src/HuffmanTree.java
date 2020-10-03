@@ -12,6 +12,7 @@ public class HuffmanTree {
         public Node left() { return left;}
         public Node right() { return right;}
         public int value() {return value;}
+        public Character ch() {return ch;}
         public Node(Character letter, Integer freq) {
             ch = letter;
             value = freq;
@@ -56,7 +57,9 @@ public class HuffmanTree {
             System.err.println(e.getMessage());
         }
         PriorityQueue<Node> nodePriorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::value));
-        frequencies.forEach((ch, freq) -> nodePriorityQueue.add(new Node(ch, freq)));
+        frequencies.forEach((ch, freq) -> {nodePriorityQueue.add(new Node(ch, freq));
+        System.out.println("'" + ch + "': " + freq);});
+        System.out.println("-------------------");
         while (nodePriorityQueue.size() > 1) {
             Node node1 = nodePriorityQueue.poll();
             Node node2 = nodePriorityQueue.poll();
@@ -65,7 +68,7 @@ public class HuffmanTree {
         head = nodePriorityQueue.poll();
         return true;
     }
-    public class EncodedChar {
+    /*public class EncodedChar {
         private char ch;
         private int code;
         private EncodedChar(char ch, int code) {
@@ -74,13 +77,21 @@ public class HuffmanTree {
         }
         public int getCode() {return code;}
         public char getCh() {return ch;}
+    }*/
+    private void getCharCodes(HashMap<Character, Integer> map, Node node, int curCode) {
+        if (node == null) {
+            return;
+        }
+        getCharCodes(map, node.left(), curCode << 1);
+        getCharCodes(map, node.right(), (curCode << 1) | 1);
+        if (node.ch() != null) {
+            map.put(node.ch(), curCode);
+        }
     }
-    private getCharCodes(HashMap<Character, Integer> map) {
-
-    }
-    public Set<EncodedChar> getCodeTable() {
+    public HashMap<Character, Integer> getCodeTable() {
         HashMap<Character, Integer> codesMap = new HashMap<>();
-
-        return null;
+        getCharCodes(codesMap, head, 1);
+        codesMap.forEach((Character ch, Integer i)-> codesMap.replace(ch, i & ~Integer.highestOneBit(i)));
+        return codesMap;
     }
 }
