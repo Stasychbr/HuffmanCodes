@@ -11,10 +11,12 @@ public class main {
         else {
             ConfigParser cp = new ConfigParser(args[0]);
             //System.out.println("buffer size: " + cp.bufSize());
-            HuffmanTree ht = new HuffmanTree(cp);
+            HuffmanFactory ht = new HuffmanFactory(cp);
             ht.buildTree();
-            HashMap<Character, Integer> codes = ht.getCodeTable();
-            codes.forEach((Character ch, Integer i)->System.out.println("'" + ch + "': " + Integer.toBinaryString(i)));
+            HashMap<Character, String> codes = ht.getCodeTable();
+            codes.forEach((Character ch, String s)->System.out.println("'" + ch + "': " + s));
+            ht.printCodesTree();
+            ht.parseTree();
         }
     }
 }
