@@ -1,35 +1,29 @@
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class HuffmanFactory {
+    private Writer writer = null;
     private ConfigParser config = null;
-    private HashMap<Character, String> codesMap = null;
+    private HashMap<Character, Integer> codesMap = null;
+    private HashMap<Character, Integer> frequencies = new HashMap<>();
     private Tree tree = null;
     public HuffmanFactory(ConfigParser config) {
         this.config = config;
     }
-    public boolean buildTree() {
-        if (config == null) {
-            return false;
+    public void countFrequencies(byte[] text) {
+        String curStr = new String(text);
+        for (int i = 0; i < curStr.length(); i++) {
+            char c = curStr.charAt(i);
+            Integer freq = frequencies.getOrDefault(c, 0);
+            frequencies.put(c, ++freq);
         }
-        BufferedReader br = new BufferedReader(config.inputFile(), config.bufSize());
-        HashMap<Character, Integer> frequencies = new HashMap<>();
-        try {
-            while (br.ready()) {
-                Character c = (char)br.read();
-                Integer freq = frequencies.getOrDefault(c, 0);
-                frequencies.put(c, ++freq);
-            }
-            br.close();
-        }
-        catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
+    }
+    public void buildTree() {
         tree = new Tree(frequencies);
         codesMap = null;
-        return true;
     }
-    public HashMap<Character, String> getCodeTable() {
+    public HashMap<Character, Integer> getCodeTable() {
         if (codesMap != null) {
             return codesMap;
         }
@@ -39,7 +33,7 @@ public class HuffmanFactory {
     public void printCodesTree() {
         BareTree bt = new BareTree(tree.head());
         try {
-            FileOutputStream fos = new FileOutputStream("tree.txt");
+            FileOutputStream fos = new FileOutputStream(config.treePath());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(bt);
             oos.flush();
@@ -50,14 +44,43 @@ public class HuffmanFactory {
         }
     }
     public void parseTree() {
+
+    }
+    public void encodeText() {
         try {
-            FileInputStream fis = new FileInputStream("tree.txt");
-            ObjectInputStream oin = new ObjectInputStream(fis);
-            BareTree test = (BareTree) oin.readObject();
-            System.out.println("parsed");
+            FileOutputStream fos = new FileOutputStream(config.outputPath());
+            FileReader fr = new FileReader(config.inputPath());
+            StringBuilder curPiece = new StringBuilder();
+            String mod = "";
+            while (fr.ready()) {
+                char c = (char)fr.read();
+                Integer curCode = codesMap.get(c);
+                String curStr = Integer.toBinaryString(curCode);
+                String toAppend = curStr.substring(0, Math.min(curStr.length(), Long.SIZE - curPiece.length()));
+                curPiece.append(mod);
+                curPiece.append(toAppend);
+                if (toAppend.length() == curStr.length()) {
+                    mod = "";
+                }
+                else {
+                    mod = curStr.substring(toAppend.length(), curStr.length());
+                }
+                if (curPiece.length() == Long.SIZE) {
+                    long num = Long.parseLong(curPiece.toString(), 2);
+                    fos.write(ByteBuffer.allocate(Long.BYTES).putLong(num).array());
+                    curPiece.setLength(0);
+                    curPiece.append(mod);
+                }
+            }
+            long num = Long.parseLong(curPiece.toString(), 2);
+            int bitNum = Long.SIZE - Long.numberOfLeadingZeros(num);
+            byte[] bArr = ByteBuffer.allocate(Long.BYTES).putLong(num).array();
+            bArr = Arrays.copyOfRange(bArr, bArr.length - (bitNum / 8 + 1), bArr.length);
+            fos.write(bArr);
+            System.out.println("Encoded");
         }
-        catch (IOException | ClassNotFoundException e) {
-            System.out.println("kek");
+        catch (IOException e) {
+            System.out.println("Error during text encoding");
         }
     }
 }

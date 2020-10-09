@@ -28,7 +28,6 @@ class Node {
 }
 
 public class Tree {
-
     public Node mergeNodes(Node left, Node right) {
         Node newHead = new Node();
         newHead.addLeft(left);
@@ -59,12 +58,12 @@ public class Tree {
             map.put(node.ch(), curCode);
         }
     }
-    public HashMap<Character, String> getCharCodes() {
+    public HashMap<Character, Integer> getCharCodes() {
         HashMap <Character, Integer> encodingMap = new HashMap<>();
         getCharCodes(encodingMap, head, 1);
-        HashMap<Character, String> resMap = new HashMap<>();
-        encodingMap.forEach((Character ch, Integer i)-> resMap.put(ch, Integer.toBinaryString(i).substring(1)));
-        return resMap;
+        //HashMap<Character, String> resMap = new HashMap<>();
+        //encodingMap.forEach((Character ch, Integer i)-> resMap.put(ch, Integer.toBinaryString(i).substring(1)));
+        return encodingMap;
     }
 }
 
