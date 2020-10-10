@@ -1,15 +1,15 @@
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.nio.ByteOrder;
 
 public class Decoder {
-    FileInputStream fos;
+    FileInputStream encoded;
     FileReader origin;
     FileInputStream treeFile;
     BareTree tree;
     Decoder(ConfigParser config) {
         try {
-            fos = new FileInputStream(config.outputPath());
+            encoded = new FileInputStream(config.outputPath());
             origin = new FileReader(config.inputPath());
             treeFile = new FileInputStream(config.treePath());
         }
@@ -29,22 +29,58 @@ public class Decoder {
             return false;
         }
     }
-    private String getChars(byte[] arr) {
-        String codeSeq = Long.
+    private Long mod = null;
+    private String getChars(Long code) {
+        StringBuilder codeSeq = new StringBuilder();
+        BareNode curNode = tree.head;
+        if (mod != null) {
+            int bitNum = Integer.SIZE - Long.numberOfLeadingZeros(mod);
+            for (int i = 0; i < bitNum; i++) {
+                if ((code >> (bitNum - i - 1) & 1) == 1) {
+                    curNode = curNode.right;
+                } else {
+                    curNode = curNode.left;
+                }
+            }
+        }
+        int bitNum = Long.SIZE - Long.numberOfLeadingZeros(code);
+        for (int i = 1; i < bitNum; i++) {
+            if ((code >> (bitNum - i - 1) & 1) == 1) {
+                curNode = curNode.right;
+            }
+            else {
+                curNode = curNode.left;
+            }
+            if (curNode.ch != null) {
+                codeSeq.append(curNode.ch);
+                curNode = tree.head;
+                mod = (long)(code << i);
+                if (mod == 0) {
+                    break;
+                }
+                i++;
+            }
+        }
+        if (curNode == tree.head) {
+            mod = null;
+        }
+        return codeSeq.toString();
     }
     boolean check() {
         parseTree();
         try {
-            int curSize = Math.min(Long.BYTES, fos.available());
-            byte buf[] = new byte[curSize];
-            int readNum = fos.read(buf);
+            int curSize = Math.min(Long.BYTES, encoded.available());
+            byte buf[] = new byte[Long.BYTES];
+            int readNum = encoded.read(buf);
             while (readNum > 0) {
-                String code =
-                curSize = Math.min(Long.BYTES, fos.available());
-                buf = new byte[curSize];
-                readNum = fos.read(buf);
+                Long code = ByteBuffer.wrap(buf).order(ByteOrder.BIG_ENDIAN).getLong();
+                String curStr = getChars(code);
+                System.out.print(curStr);
+                curSize = Math.min(Long.BYTES, encoded.available());
+                buf = new byte[Long.BYTES];
+                readNum = encoded.read(buf);
             }
-            fos.close();
+            encoded.close();
             return true;
         }
         catch (IOException e) {

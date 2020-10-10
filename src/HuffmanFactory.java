@@ -43,9 +43,6 @@ public class HuffmanFactory {
             System.out.println("kek");
         }
     }
-    public void parseTree() {
-
-    }
     public void encodeText() {
         try {
             FileOutputStream fos = new FileOutputStream(config.outputPath());
@@ -74,8 +71,12 @@ public class HuffmanFactory {
             }
             long num = Long.parseLong(curPiece.toString(), 2);
             int bitNum = Long.SIZE - Long.numberOfLeadingZeros(num);
+            while (bitNum % 8 != 0) {
+                num = num << 1;
+                bitNum++;
+            }
             byte[] bArr = ByteBuffer.allocate(Long.BYTES).putLong(num).array();
-            bArr = Arrays.copyOfRange(bArr, bArr.length - (bitNum / 8 + 1), bArr.length);
+            bArr = Arrays.copyOfRange(bArr, bArr.length - bitNum / 8, bArr.length);
             fos.write(bArr);
             System.out.println("Encoded");
         }

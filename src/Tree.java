@@ -39,8 +39,8 @@ public class Tree {
     public Tree(HashMap<Character, Integer> frequencies) {
         PriorityQueue<Node> nodePriorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::value));
         frequencies.forEach((ch, freq) ->{ nodePriorityQueue.add(new Node(ch, freq));
-            System.out.println("'" + ch + "': " + freq);});
-        System.out.println("-------------------");
+            System.out.println("'" + ch + "': " + freq);}); //dbg
+        System.out.println("-------------------"); //dbg
         while (nodePriorityQueue.size() > 1) {
             Node node1 = nodePriorityQueue.poll();
             Node node2 = nodePriorityQueue.poll();
@@ -61,8 +61,6 @@ public class Tree {
     public HashMap<Character, Integer> getCharCodes() {
         HashMap <Character, Integer> encodingMap = new HashMap<>();
         getCharCodes(encodingMap, head, 1);
-        //HashMap<Character, String> resMap = new HashMap<>();
-        //encodingMap.forEach((Character ch, Integer i)-> resMap.put(ch, Integer.toBinaryString(i).substring(1)));
         return encodingMap;
     }
 }
