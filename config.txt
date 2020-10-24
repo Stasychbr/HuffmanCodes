@@ -1,4 +1,3 @@
 INPUT_FILE = text.txt
 OUTPUT_FILE = output.txt
-TREE_FILE = tree.txt
 BUF_SIZE = 32

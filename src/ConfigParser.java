@@ -4,7 +4,6 @@ public class ConfigParser {
     private Integer bufSize = null;
     private String inputPath = null;
     private String outputPath = null;
-    private String treePath = null;
     public ConfigParser(String configPath) {
         try {
             FileReader fileReader = new FileReader(configPath);
@@ -23,9 +22,6 @@ public class ConfigParser {
                     outputPath = parts[1];
                 } else if (parts[0].equals(Params.bufSize.getValue())) {
                     bufSize = 1024 * Integer.parseInt(parts[1]);
-                }
-                else if (parts[0].equals(Params.treeFile.getValue())) {
-                    treePath = parts[1];
                 }
                 if (inputPath != null && outputPath != null && bufSize != null) {
                     if (bufSize <= 0) {
@@ -48,8 +44,5 @@ public class ConfigParser {
     }
     public int bufSize() {
         return bufSize;
-    }
-    public String treePath() {
-        return treePath;
     }
 }

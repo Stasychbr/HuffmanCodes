@@ -1,32 +1,52 @@
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
 
 public class Decoder {
     FileInputStream encoded;
-    FileReader origin;
-    FileInputStream treeFile;
-    BareTree tree;
+    //FileReader origin;
+    FileOutputStream decoded;
     Decoder(ConfigParser config) {
         try {
             encoded = new FileInputStream(config.outputPath());
-            origin = new FileReader(config.inputPath());
-            treeFile = new FileInputStream(config.treePath());
+            //origin = new FileReader(config.inputPath());
+            decoded = new FileOutputStream("decoded.txt");
         }
         catch (IOException e) {
-            System.out.println("troubles during decoding");
+            System.err.println("troubles during decoding");
         }
     }
-    boolean parseTree() {
+    void parseTree() {
         try {
-            ObjectInputStream oin = new ObjectInputStream(treeFile);
-            tree = (BareTree) oin.readObject();
-            System.out.println("parsed");
-            return true;
+            int codesNum = encoded.read();
+            byte[] bChar = new byte[2];
+            int freq;
+            HashMap<Character, Integer> frequencies = new HashMap<>();
+            for (int i = 0; i < codesNum; i++) {
+                encoded.read(bChar);
+                freq = encoded.read();
+                frequencies.put((char)(((bChar[0]&0x00FF)<<8) + (bChar[1]&0x00FF)), freq);
+            }
+            Tree tree = new Tree(frequencies);
+            HashMap<Character, byte[]> encodeTable = tree.getCharCodes();
+            HashMap<Integer, Character> decodeTable = new HashMap<>();
+            encodeTable.forEach((Character ch, byte[] b)->{
+                int code = 0;
+                int size = b.length;
+                for(int i = 0; i < size; i++) {
+                    code += b[i] << (8*(size - i - 1));
+                }
+                decodeTable.put(code, ch);
+            });
+            int textLen = 0;
+            textLen = encoded.read();
+            for (int i = 0; i < textLen; i++) {
+
+            }
         }
-        catch (IOException | ClassNotFoundException e) {
-            System.out.println("parsing went wrong");
-            return false;
+        catch (IOException e) {
+            System.err.println("Troubles during tree parsing");
         }
     }
     private Long mod = null;

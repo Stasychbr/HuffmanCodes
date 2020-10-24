@@ -4,34 +4,30 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Reader {
-    FileInputStream input;
-    int bufSize = 0;
-    HuffmanFactory factory;
-    Reader(ConfigParser config, HuffmanFactory factory) {
-        try {
-            input = new FileInputStream(config.inputPath());
-        }
-        catch (IOException e) {
-            System.out.println("Error during reading");
-        }
-        bufSize = config.bufSize();
+    final FileInputStream input;
+    final int bufSize;
+    final HuffmanFactory factory;
+    Reader(FileInputStream fis, int bufSize, HuffmanFactory factory) {
+        input = fis;
+        this.bufSize = bufSize;
         this.factory = factory;
     }
-    public void readText() {
+    public void run() {
         try {
             int curSize = Math.min(bufSize, input.available());
-            byte buf[] = new byte[curSize];
+            byte[] buf = new byte[curSize];
             int readNum = input.read(buf);
             while (readNum > 0) {
-                factory.countFrequencies(buf);
+                factory.run(buf);
                 curSize = Math.min(bufSize, input.available());
-                buf = new byte[curSize];
+                if (curSize != buf.length) {
+                    buf = new byte[curSize];
+                }
                 readNum = input.read(buf);
             }
-            input.close();
         }
         catch (IOException e) {
-            System.out.println("Error during reading!");
+            System.err.println("Error during reading!");
         }
     }
 }

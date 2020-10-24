@@ -1,4 +1,5 @@
-import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -58,10 +59,18 @@ public class Tree {
             map.put(node.ch(), curCode);
         }
     }
-    public HashMap<Character, Integer> getCharCodes() {
+    public HashMap<Character, byte[]> getCharCodes() {
         HashMap <Character, Integer> encodingMap = new HashMap<>();
         getCharCodes(encodingMap, head, 1);
-        return encodingMap;
+        HashMap<Character, byte[]> result = new HashMap<>();
+        encodingMap.forEach((Character ch, Integer code)->{
+            byte[] toPut = ByteBuffer.allocate(Integer.BYTES).putInt(code & ~Integer.highestOneBit(code)).array();
+            int bitsNum = Integer.SIZE - Integer.numberOfLeadingZeros(code);
+            int bytesNum = bitsNum % 8 == 0 ? bitsNum / 8 : bitsNum / 8 + 1;
+            toPut = Arrays.copyOfRange(toPut, toPut.length - bytesNum, toPut.length);
+            result.put(ch, toPut);
+        });
+        return result;
     }
 }
 
