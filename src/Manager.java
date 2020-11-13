@@ -31,7 +31,6 @@ public class Manager {
                     return;
                 }
                 decoder.run();
-
             }
         }
         catch (IOException e) {

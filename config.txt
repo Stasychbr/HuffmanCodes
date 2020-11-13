@@ -1,4 +1,4 @@
-INPUT_FILE = text.txt
-OUTPUT_FILE = encoded.txt
+INPUT_FILE = encoded.txt
+OUTPUT_FILE = decoded.txt
 BUF_SIZE = 32
-MODE = ENCODE
+MODE = DECODE
