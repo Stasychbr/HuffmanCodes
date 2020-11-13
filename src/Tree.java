@@ -35,13 +35,12 @@ public class Tree {
         newHead.addRight(right);
         return newHead;
     }
-    private Node head = null;
-    public Node head() {return head;}
+    private final Node head;
     public Tree(HashMap<Character, Integer> frequencies) {
         PriorityQueue<Node> nodePriorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::value));
-        frequencies.forEach((ch, freq) ->{ nodePriorityQueue.add(new Node(ch, freq));
-            System.out.println("'" + ch + "': " + freq);}); //dbg
-        System.out.println("-------------------"); //dbg
+        frequencies.forEach((ch, freq) ->nodePriorityQueue.add(new Node(ch, freq)));
+            //System.out.println("'" + ch + "': " + freq);}); //dbg
+        //System.out.println("-------------------"); //dbg
         while (nodePriorityQueue.size() > 1) {
             Node node1 = nodePriorityQueue.poll();
             Node node2 = nodePriorityQueue.poll();
@@ -64,12 +63,13 @@ public class Tree {
         getCharCodes(encodingMap, head, 1);
         HashMap<Character, byte[]> result = new HashMap<>();
         encodingMap.forEach((Character ch, Integer code)->{
-            byte[] toPut = ByteBuffer.allocate(Integer.BYTES).putInt(code & ~Integer.highestOneBit(code)).array();
+            byte[] toPut = ByteBuffer.allocate(Integer.BYTES).putInt(code).array();
             int bitsNum = Integer.SIZE - Integer.numberOfLeadingZeros(code);
-            int bytesNum = bitsNum % 8 == 0 ? bitsNum / 8 : bitsNum / 8 + 1;
+            int bytesNum = bitsNum % Byte.SIZE == 0 ? bitsNum / Byte.SIZE : bitsNum / Byte.SIZE + 1;
             toPut = Arrays.copyOfRange(toPut, toPut.length - bytesNum, toPut.length);
             result.put(ch, toPut);
         });
+        //result.forEach((Character ch, byte[] bArr)-> System.out.println(ch + Arrays.toString(bArr))); /dbg
         return result;
     }
 }

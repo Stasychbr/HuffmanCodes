@@ -1,3 +1,4 @@
 INPUT_FILE = text.txt
-OUTPUT_FILE = output.txt
+OUTPUT_FILE = encoded.txt
 BUF_SIZE = 32
+MODE = ENCODE

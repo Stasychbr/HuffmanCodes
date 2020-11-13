@@ -27,7 +27,7 @@ public class Reader {
             }
         }
         catch (IOException e) {
-            System.err.println("Error during reading!");
+            Logger.setError(Errors.ReaderError);
         }
     }
 }

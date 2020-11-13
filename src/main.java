@@ -12,6 +12,9 @@ public class main {
         }
         else {
             Manager mg = new Manager(args[0]);
+            if (Logger.isError()) {
+                return;
+            }
             mg.run();
         }
     }
